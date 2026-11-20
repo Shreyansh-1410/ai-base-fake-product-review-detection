@@ -139,7 +139,7 @@ class AnalysisService:
             reviews=analyzed_reviews,
             suspicious_positives=[],
             contradictions=[],
-            aspect_insights={},
+            aspect_insights=[],
             top_defects=[],
             model_name=model_name or "Logistic Regression",
             is_live_db=True

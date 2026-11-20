@@ -37,7 +37,7 @@ async def identify_platform(request: ProductUrlRequest):
     info = extractor_manager.identify_platform(request.product_url)
     return info
 
-@router.post("/extract", response_model=ExtractedProduct)
+@router.post("/extract")
 async def extract_product_details(request: ProductUrlRequest):
     """
     Extracts product name, brand, platform, image, rating, reviews count,
@@ -53,7 +53,7 @@ async def extract_product_details(request: ProductUrlRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to extract product information: {str(e)}")
 
-@router.post("/analyze-url", response_model=FullAnalysisResponse)
+@router.post("/analyze-url")
 async def analyze_product_url(request: AnalyzeUrlRequest):
     """
     Main URL-to-Analysis endpoint:

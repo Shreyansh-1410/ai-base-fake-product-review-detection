@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 from pydantic import BaseModel, Field
 from app.schemas.review import ReviewAnalysisOutput, ProductVerificationInput
 
@@ -62,7 +62,7 @@ class FullAnalysisResponse(BaseModel):
     reviews: List[ReviewAnalysisOutput]
     suspicious_positives: List[SuspiciousPositiveReviewItem] = Field(default_factory=list)
     contradictions: List[AspectContradictionItem] = Field(default_factory=list)
-    aspect_insights: List[AspectSentimentSummary] = Field(default_factory=list)
+    aspect_insights: Union[List[AspectSentimentSummary], Dict[str, Any], List[Any]] = Field(default_factory=list)
     top_defects: List[str] = Field(default_factory=list)
     model_name: str = "Logistic Regression"
     is_live_db: bool = True
