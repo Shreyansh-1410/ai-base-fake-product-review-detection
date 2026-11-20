@@ -30,11 +30,11 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS setup
+# CORS setup - open for all browser clients and serverless origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -54,11 +54,14 @@ app.include_router(reports_router)
 app.include_router(demo_router)
 app.include_router(products_router)
 
+@app.get("/api/health")
 @app.get("/health")
 async def health_check():
     from app.database import db
     return {
         "status": "healthy",
+        "system": settings.PROJECT_NAME,
+        "version": settings.VERSION,
         "database": "live_mongodb" if not db.is_mock else "resilient_in_memory_mock",
         "models_loaded": True
     }
