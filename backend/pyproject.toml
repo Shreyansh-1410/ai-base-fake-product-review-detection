@@ -1,0 +1,8 @@
+[project]
+name = "reviewguard-backend"
+version = "1.0.0"
+description = "AI-Based Fake Product Review Detection System Backend"
+requires-python = ">=3.9"
+
+[tool.vercel]
+entrypoint = "app.main:app"
