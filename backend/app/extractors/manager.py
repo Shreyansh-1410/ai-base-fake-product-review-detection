@@ -404,9 +404,12 @@ class ExtractionManager:
     def extract_product(self, url: str) -> ExtractedProduct:
         url_clean = url.strip()
 
-        # 1. Extract using modular platform extractor
+        # 1. Extract using modular platform extractor with resilient fallback
         extractor = self.get_extractor(url_clean)
-        extracted = extractor.extract(url_clean)
+        try:
+            extracted = extractor.extract(url_clean)
+        except Exception as e:
+            extracted = self.generic_extractor.extract(url_clean)
 
         # 2. Ensure title and brand are clean and not generic
         if not extracted.product_name or extracted.product_name in ["Flipkart Product", "Amazon Product", "E-Commerce Product"]:

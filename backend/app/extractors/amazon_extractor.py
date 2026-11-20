@@ -91,7 +91,7 @@ class AmazonExtractor(BaseProductExtractor):
         html = None
         try:
             req = urllib.request.Request(url, headers=self.headers)
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=3.0) as response:
                 resolved_url = response.geturl()
                 html = response.read().decode("utf-8", errors="ignore")
         except Exception:
