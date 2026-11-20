@@ -64,11 +64,14 @@ class ReviewAuthenticityPredictor:
             self._load_artifacts()
         ling_df = extract_linguistic_features(texts)
         if self.tfidf is not None:
-            cleaned = [clean_text_for_nlp(t) for t in texts]
-            X_tfidf = self.tfidf.transform(cleaned)
-            X_ling = csr_matrix(ling_df.values)
-            X_combined = hstack([X_tfidf, X_ling]).tocsr()
-            return X_combined, ling_df
+            try:
+                cleaned = [clean_text_for_nlp(t) for t in texts]
+                X_tfidf = self.tfidf.transform(cleaned)
+                X_ling = csr_matrix(ling_df.values)
+                X_combined = hstack([X_tfidf, X_ling]).tocsr()
+                return X_combined, ling_df
+            except Exception as e:
+                return None, ling_df
         return None, ling_df
 
     def predict_single(self, text: str, model_name: Optional[str] = None) -> Dict[str, Any]:

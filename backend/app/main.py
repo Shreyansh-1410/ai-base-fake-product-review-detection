@@ -39,13 +39,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount API Routers
+# Mount API Routers (Mount on both '/api' and root '' to handle proxy path rewrites)
 app.include_router(reviews_router, prefix=settings.API_V1_STR)
 app.include_router(analysis_router, prefix=settings.API_V1_STR)
 app.include_router(models_router, prefix=settings.API_V1_STR)
 app.include_router(reports_router, prefix=settings.API_V1_STR)
 app.include_router(demo_router, prefix=settings.API_V1_STR)
 app.include_router(products_router, prefix=settings.API_V1_STR)
+
+app.include_router(reviews_router)
+app.include_router(analysis_router)
+app.include_router(models_router)
+app.include_router(reports_router)
+app.include_router(demo_router)
+app.include_router(products_router)
 
 @app.get("/health")
 async def health_check():
