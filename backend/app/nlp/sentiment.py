@@ -1,9 +1,19 @@
 from typing import Dict, Any, Optional, Tuple
+import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+try:
+    nltk.data.find('sentiment/vader_lexicon.zip')
+except LookupError:
+    nltk.download('vader_lexicon', quiet=True)
 
 class SentimentAnalyzer:
     def __init__(self):
-        self.vader = SentimentIntensityAnalyzer()
+        try:
+            self.vader = SentimentIntensityAnalyzer()
+        except LookupError:
+            nltk.download('vader_lexicon', quiet=True)
+            self.vader = SentimentIntensityAnalyzer()
         # Add tech and domain-specific lexicon updates
         custom_lexicon = {
             "knockoff": -2.8,

@@ -1,7 +1,7 @@
 import os
 import logging
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -59,7 +59,7 @@ if FRONTEND_DIST.exists():
     async def serve_spa(full_path: str):
         # Do not intercept API or docs routes
         if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("redoc") or full_path.startswith("openapi.json"):
-            return None
+            raise HTTPException(status_code=404, detail="Resource Not Found")
         file_path = FRONTEND_DIST / full_path
         if file_path.is_file():
             return FileResponse(file_path)

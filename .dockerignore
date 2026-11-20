@@ -1,0 +1,15 @@
+node_modules
+frontend/node_modules
+.git
+.gitignore
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+.venv
+scratch
+*.log
+backend/data/*.db
