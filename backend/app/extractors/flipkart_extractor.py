@@ -191,13 +191,13 @@ class FlipkartExtractor(BaseProductExtractor):
             if og_img and og_img.get("content"):
                 product_image = og_img.get("content")
 
-        # 2. Extract PID and slug from resolved URL to fetch product-reviews page for live full review list
+        # 2. Extract PID and slug from resolved URL to fetch product-reviews page if initial page had few reviews
         path = urlparse(resolved_url).path
         slug_match = re.search(r"^/([^/]+)/p/", path)
         slug = slug_match.group(1) if slug_match else ""
 
-        if pid:
-            # Multi-page live review pagination: supports up to 1,000 reviews
+        if pid and len(extracted_reviews) < 20:
+            # Quick probe for reviews page if needed, kept under 2s for instant response
             def fetch_flipkart_page(p_num: int):
                 urls_to_try = []
                 if slug:
@@ -207,7 +207,7 @@ class FlipkartExtractor(BaseProductExtractor):
                 for rev_url in urls_to_try:
                     try:
                         p_req = urllib.request.Request(rev_url, headers=self.headers)
-                        with urllib.request.urlopen(p_req, timeout=2.5) as p_resp:
+                        with urllib.request.urlopen(p_req, timeout=2.0) as p_resp:
                             p_html = p_resp.read().decode("utf-8", errors="ignore")
                             if "ProductReviewValue" in p_html:
                                 return p_num, p_html
@@ -215,33 +215,11 @@ class FlipkartExtractor(BaseProductExtractor):
                         pass
                 return p_num, None
 
-            # Probe Page 1 first to check if Flipkart review pagination is accessible
             p1_num, p1_html = fetch_flipkart_page(1)
             if p1_html:
                 p1_revs = self._extract_reviews_from_state(p1_html, seen_texts)
                 if p1_revs:
                     extracted_reviews.extend(p1_revs)
-                
-                # Fetch further pages in parallel batches up to 50 pages (max 1,000 reviews)
-                max_total_pages = 50
-                batch_size = 10
-
-                with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-                    for batch_start in range(2, max_total_pages + 1, batch_size):
-                        batch_pages = range(batch_start, min(batch_start + batch_size, max_total_pages + 1))
-                        page_results = list(executor.map(fetch_flipkart_page, batch_pages))
-
-                        batch_has_reviews = False
-                        for p_num, p_html in sorted(page_results, key=lambda x: x[0]):
-                            if p_html:
-                                p_revs = self._extract_reviews_from_state(p_html, seen_texts)
-                                if p_revs:
-                                    extracted_reviews.extend(p_revs)
-                                    batch_has_reviews = True
-
-                        # Stop if batch had no reviews or if 1,000 reviews cap reached
-                        if not batch_has_reviews or len(extracted_reviews) >= 1000:
-                            break
 
             if len(extracted_reviews) > 1000:
                 extracted_reviews = extracted_reviews[:1000]
