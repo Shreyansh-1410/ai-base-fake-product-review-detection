@@ -147,7 +147,7 @@ class FlipkartExtractor(BaseProductExtractor):
         main_html = None
         try:
             req = urllib.request.Request(url, headers=self.headers)
-            with urllib.request.urlopen(req, timeout=3.0) as response:
+            with urllib.request.urlopen(req, timeout=1.8) as response:
                 resolved_url = response.geturl()
                 main_html = response.read().decode("utf-8", errors="ignore")
         except Exception:
@@ -197,17 +197,18 @@ class FlipkartExtractor(BaseProductExtractor):
         slug = slug_match.group(1) if slug_match else ""
 
         if pid and len(extracted_reviews) < 20:
-            # Quick probe for reviews page if needed, kept under 2s for instant response
+            # Quick probe for reviews page if needed, kept under 1.2s for instant response
             def fetch_flipkart_page(p_num: int):
                 urls_to_try = []
                 if slug:
                     urls_to_try.append(f"https://www.flipkart.com/{slug}/product-reviews/{pid}?page={p_num}")
-                urls_to_try.append(f"https://www.flipkart.com/product-reviews/{pid}?page={p_num}")
+                else:
+                    urls_to_try.append(f"https://www.flipkart.com/product-reviews/{pid}?page={p_num}")
 
                 for rev_url in urls_to_try:
                     try:
                         p_req = urllib.request.Request(rev_url, headers=self.headers)
-                        with urllib.request.urlopen(p_req, timeout=2.0) as p_resp:
+                        with urllib.request.urlopen(p_req, timeout=1.2) as p_resp:
                             p_html = p_resp.read().decode("utf-8", errors="ignore")
                             if "ProductReviewValue" in p_html:
                                 return p_num, p_html

@@ -11,7 +11,7 @@ class ProductVerificationInput(BaseModel):
 class SingleReviewInput(BaseModel):
     review_id: Optional[str] = None
     review_text: str = Field(..., min_length=2, description="The customer review text")
-    rating: Optional[float] = Field(default=None, ge=1.0, le=5.0, description="Customer star rating (1 to 5)")
+    rating: Optional[float] = Field(default=None, description="Customer star rating (1 to 5)")
     reviewer_id: Optional[str] = Field(default=None, description="Optional anonymous reviewer ID")
     timestamp: Optional[str] = Field(default=None, description="Optional ISO timestamp or date string")
     verified_purchase: Optional[bool] = Field(default=None, description="Optional verified purchase badge")

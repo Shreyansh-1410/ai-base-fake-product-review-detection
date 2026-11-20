@@ -4,42 +4,13 @@ from typing import Dict, Any, Optional, Tuple
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-# Support serverless read-only environments (e.g. Vercel, AWS Lambda)
-tmp_nltk = Path("/tmp/nltk_data")
-if tmp_nltk.exists() or os.name != 'nt':
-    if str(tmp_nltk) not in nltk.data.path:
-        nltk.data.path.append(str(tmp_nltk))
-
-def _ensure_vader():
-    try:
-        nltk.data.find('sentiment/vader_lexicon.zip')
-    except LookupError:
-        try:
-            if os.name != 'nt':
-                tmp_nltk.mkdir(parents=True, exist_ok=True)
-                nltk.download('vader_lexicon', download_dir=str(tmp_nltk), quiet=True)
-            else:
-                nltk.download('vader_lexicon', quiet=True)
-        except Exception:
-            try:
-                nltk.download('vader_lexicon', quiet=True)
-            except Exception:
-                pass
-
-_ensure_vader()
-
+# Fast, zero-network sentiment analyzer for serverless and container deployments
 class SentimentAnalyzer:
     def __init__(self):
+        self.vader = None
         try:
+            from nltk.sentiment.vader import SentimentIntensityAnalyzer
             self.vader = SentimentIntensityAnalyzer()
-        except LookupError:
-            _ensure_vader()
-            try:
-                self.vader = SentimentIntensityAnalyzer()
-            except Exception:
-                self.vader = None
-        # Add tech and domain-specific lexicon updates
-        if self.vader:
             custom_lexicon = {
                 "knockoff": -2.8,
                 "counterfeit": -3.0,
@@ -55,6 +26,22 @@ class SentimentAnalyzer:
                 "game changer": 2.5
             }
             self.vader.lexicon.update(custom_lexicon)
+        except Exception:
+            self.vader = None
+
+        # Robust built-in polarity lexicon (instant zero-dependency evaluation)
+        self.pos_words = {
+            "good", "great", "excellent", "best", "love", "awesome", "perfect", "sturdy",
+            "crisp", "flawless", "durable", "clear", "smooth", "comfortable", "reliable",
+            "fast", "satisfied", "genuine", "original", "premium", "superb", "impressive",
+            "punchy", "decent", "recommend", "recommended", "value", "happy", "pleased"
+        }
+        self.neg_words = {
+            "bad", "poor", "terrible", "worst", "hate", "awful", "broken", "fake", "counterfeit",
+            "drains", "drain", "dead", "lag", "loose", "rattle", "creak", "muffled", "bleeding",
+            "flicker", "disappointed", "defective", "waste", "useless", "scam", "cheat", "cheat",
+            "heating", "overheat", "overheating", "stopped", "stopped working", "garbage", "trash"
+        }
 
     def analyze_review(self, text: str, rating: Optional[float] = None) -> Dict[str, Any]:
         """
@@ -65,16 +52,21 @@ class SentimentAnalyzer:
             compound = scores["compound"]
         else:
             # Fallback heuristic if VADER lexicon unavailable
-            lower = text.lower()
-            pos_words = sum(1 for w in ["good", "great", "excellent", "best", "love", "awesome", "perfect"] if w in lower)
-            neg_words = sum(1 for w in ["bad", "poor", "terrible", "worst", "hate", "awful", "broken", "fake"] if w in lower)
-            if pos_words > neg_words:
-                compound = 0.5
-            elif neg_words > pos_words:
-                compound = -0.5
+            words = [w.strip(".,!?\"'") for w in text.lower().split() if w.strip(".,!?\"'")]
+            pos_matches = sum(1 for w in words if w in self.pos_words)
+            neg_matches = sum(1 for w in words if w in self.neg_words)
+            total_matches = pos_matches + neg_matches
+            if total_matches > 0:
+                compound = (pos_matches - neg_matches) / total_matches
+            elif rating is not None:
+                compound = 0.5 if rating >= 4.0 else (-0.5 if rating <= 2.0 else 0.0)
             else:
                 compound = 0.0
-            scores = {"pos": 0.5 if compound > 0 else 0.0, "neg": 0.5 if compound < 0 else 0.0, "neu": 1.0 if compound == 0 else 0.5}
+            scores = {
+                "pos": round(pos_matches / max(len(words), 1), 3),
+                "neg": round(neg_matches / max(len(words), 1), 3),
+                "neu": round(max(0.0, 1.0 - ((pos_matches + neg_matches) / max(len(words), 1))), 3)
+            }
         
         if compound >= 0.15:
             sentiment_label = "Positive"

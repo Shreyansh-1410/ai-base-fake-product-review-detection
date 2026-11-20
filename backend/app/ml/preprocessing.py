@@ -6,30 +6,20 @@ from typing import List, Dict, Any, Tuple
 import nltk
 from nltk.corpus import stopwords
 
-# Ensure stopwords are available with resilient fallback for serverless read-only environments
-try:
-    STOP_WORDS = set(stopwords.words("english"))
-except Exception:
-    try:
-        tmp_nltk = "/tmp/nltk_data"
-        if tmp_nltk not in nltk.data.path:
-            nltk.data.path.append(tmp_nltk)
-        nltk.download("stopwords", download_dir=tmp_nltk, quiet=True)
-        STOP_WORDS = set(stopwords.words("english"))
-    except Exception:
-        STOP_WORDS = {
-            "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours",
-            "he", "him", "his", "she", "her", "it", "its", "they", "them", "their", "what",
-            "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was",
-            "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did",
-            "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until",
-            "while", "of", "at", "by", "for", "with", "about", "against", "between", "into",
-            "through", "during", "before", "after", "above", "below", "to", "from", "up", "down",
-            "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here",
-            "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more",
-            "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so",
-            "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"
-        }
+# Pre-defined complete English stopwords set (eliminates network downloads on serverless)
+STOP_WORDS = {
+    "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours",
+    "he", "him", "his", "she", "her", "it", "its", "they", "them", "their", "what",
+    "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was",
+    "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did",
+    "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until",
+    "while", "of", "at", "by", "for", "with", "about", "against", "between", "into",
+    "through", "during", "before", "after", "above", "below", "to", "from", "up", "down",
+    "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here",
+    "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more",
+    "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so",
+    "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"
+}
 
 PUFFERY_WORDS = {
     "revolutionary", "miracle", "life-changing", "magic", "best ever",

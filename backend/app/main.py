@@ -3,10 +3,12 @@ import sys
 import logging
 from pathlib import Path
 
-# Ensure 'backend' directory is in sys.path so 'import app...' works in any runner (e.g. Vercel)
+# Ensure both 'backend' and repo root are in sys.path so 'import app...' and 'backend.app' work in any runner (e.g. Vercel)
 _backend_dir = Path(__file__).resolve().parent.parent
-if str(_backend_dir) not in sys.path:
-    sys.path.insert(0, str(_backend_dir))
+_root_dir = _backend_dir.parent
+for p in [str(_backend_dir), str(_root_dir)]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
