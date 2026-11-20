@@ -63,8 +63,18 @@ export default function HomePage({ onStartAnalysis, onNavigate, onOpenDemo }) {
       onStartAnalysis(analysisData);
     } catch (err) {
       console.error("Link Analysis failed:", err);
-      const detail = err.response?.data?.detail;
-      setError(typeof detail === 'string' ? detail : err.message || "Could not extract reviews. Please verify the link.");
+      const data = err.response?.data;
+      let msg = "";
+      if (typeof data?.detail === 'string') {
+        msg = data.detail;
+      } else if (data?.detail?.message) {
+        msg = data.detail.message;
+      } else if (data?.message) {
+        msg = data.message;
+      } else {
+        msg = err.message || "Could not extract reviews. Please verify the link.";
+      }
+      setError(msg);
     } finally {
       setIsLoading(false);
     }

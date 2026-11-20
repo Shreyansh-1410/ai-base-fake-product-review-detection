@@ -1,7 +1,17 @@
 import re
 from typing import Dict, List, Any, Tuple
-from nltk.tokenize import sent_tokenize
 from app.nlp.sentiment import sentiment_analyzer
+
+def _split_into_sentences(text: str) -> List[str]:
+    if not text:
+        return []
+    try:
+        from nltk.tokenize import sent_tokenize
+        return sent_tokenize(text)
+    except Exception:
+        # High-accuracy regex sentence boundary tokenizer fallback
+        parts = re.split(r'(?<=[.!?])\s+', text.strip())
+        return [p.strip() for p in parts if p.strip()]
 
 ASPECT_KEYWORDS = {
     "Battery": [
@@ -55,7 +65,7 @@ class AspectExtractor:
         Parses review into sentences and associates sentences with specific aspects.
         Returns a dict: { aspect: { "claim": sentence, "sentiment": "Positive"|"Negative"|"Neutral", "score": float } }
         """
-        sentences = sent_tokenize(text) if text else []
+        sentences = _split_into_sentences(text) if text else []
         aspect_claims = {}
 
         for sentence in sentences:
