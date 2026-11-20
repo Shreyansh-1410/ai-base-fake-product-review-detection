@@ -1,0 +1,116 @@
+{
+  "best_model_name": "Logistic Regression",
+  "models_evaluated": [
+    "Logistic Regression",
+    "Random Forest",
+    "XGBoost",
+    "BERT (Contextual Classifier)"
+  ],
+  "comparison_table": [
+    {
+      "model_name": "Logistic Regression",
+      "accuracy": 0.9556,
+      "precision": 0.9503,
+      "recall": 0.9609,
+      "f1_score": 0.9556,
+      "roc_auc": 0.9492,
+      "brier_score": 0.0452
+    },
+    {
+      "model_name": "Random Forest",
+      "accuracy": 0.9528,
+      "precision": 0.95,
+      "recall": 0.9553,
+      "f1_score": 0.9526,
+      "roc_auc": 0.9418,
+      "brier_score": 0.0482
+    },
+    {
+      "model_name": "XGBoost",
+      "accuracy": 0.95,
+      "precision": 0.9448,
+      "recall": 0.9553,
+      "f1_score": 0.95,
+      "roc_auc": 0.9425,
+      "brier_score": 0.048
+    },
+    {
+      "model_name": "BERT (Contextual Classifier)",
+      "accuracy": 0.9556,
+      "precision": 0.9503,
+      "recall": 0.9609,
+      "f1_score": 0.9556,
+      "roc_auc": 0.9494,
+      "brier_score": 0.1282
+    }
+  ],
+  "confusion_matrices": {
+    "Logistic Regression": [
+      [
+        172,
+        9
+      ],
+      [
+        7,
+        172
+      ]
+    ],
+    "Random Forest": [
+      [
+        172,
+        9
+      ],
+      [
+        8,
+        171
+      ]
+    ],
+    "XGBoost": [
+      [
+        171,
+        10
+      ],
+      [
+        8,
+        171
+      ]
+    ],
+    "BERT (Contextual Classifier)": [
+      [
+        172,
+        9
+      ],
+      [
+        7,
+        172
+      ]
+    ]
+  },
+  "subgroup_evaluation": {
+    "Logistic Regression": {
+      "deceptive_positive_accuracy": 0.9514,
+      "genuine_negative_accuracy": 1.0
+    },
+    "Random Forest": {
+      "deceptive_positive_accuracy": 0.9514,
+      "genuine_negative_accuracy": 1.0
+    },
+    "XGBoost": {
+      "deceptive_positive_accuracy": 0.9514,
+      "genuine_negative_accuracy": 1.0
+    },
+    "BERT (Contextual Classifier)": {
+      "deceptive_positive_accuracy": 0.9514,
+      "genuine_negative_accuracy": 1.0
+    }
+  },
+  "vocabulary_size": 1801,
+  "total_samples": 2400,
+  "train_samples": 1680,
+  "val_samples": 360,
+  "test_samples": 360,
+  "uncertainty_thresholds": {
+    "lower": 0.42,
+    "upper": 0.58
+  }
+}

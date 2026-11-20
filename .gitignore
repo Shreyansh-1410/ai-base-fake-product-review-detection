@@ -1,0 +1,47 @@
+# Node / Frontend Dependencies
+node_modules/
+frontend/node_modules/
+.pnp
+.pnp.js
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Databases & Runtime State (Keep schema / exclude local active sqlite)
+*.sqlite
+*.sqlite3
+*.db
+backend/data/*.db
+
+# IDE & Operating System Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test & Coverage Outputs
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Scratch & Temporary Logs
+scratch/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
