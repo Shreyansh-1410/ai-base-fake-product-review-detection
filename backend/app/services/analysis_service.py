@@ -260,11 +260,11 @@ class AnalysisService:
         for r in analyzed_reviews:
             if r.review_id in dup_ids:
                 r.is_duplicate = True
-                if r.classification == "GENUINE":
+                if r.classification == "GENUINE" and r.deception_probability >= 0.40:
                     r.classification = "SUSPICIOUS"
                     r.authenticity_label = "SUSPICIOUS"
-                r.indicators.append("Near-duplicate / syndicated text detected across multiple reviews")
-                r.reason += " Text matches another review in the batch."
+                    r.indicators.append("Near-duplicate / syndicated text detected across multiple reviews")
+                    r.reason += " Text matches another review in the batch."
 
         suspicious_positives = pattern_detector.identify_suspicious_positives(
             reviews_dict_list,
@@ -292,7 +292,11 @@ class AnalysisService:
             updated_dict_list,
             aspect_claims_map={}
         )
-        auth_status, auth_notes = trust_engine.verify_product_authenticity(verification_input)
+        auth_status, auth_notes = trust_engine.verify_product_authenticity(
+            verification_input,
+            trust_score=trust_score,
+            product_name=product_name
+        )
 
         # Step 7: Summary Metrics
         total_count = len(analyzed_reviews)

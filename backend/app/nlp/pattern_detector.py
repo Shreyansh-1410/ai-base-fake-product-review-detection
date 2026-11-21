@@ -16,7 +16,7 @@ class PatternDetector:
     def __init__(self):
         pass
 
-    def detect_near_duplicates(self, reviews: List[Dict[str, Any]], threshold: float = 0.70) -> List[Dict[str, Any]]:
+    def detect_near_duplicates(self, reviews: List[Dict[str, Any]], threshold: float = 0.85) -> List[Dict[str, Any]]:
         """
         Detects pairs of reviews with unusually high text overlap (bot/campaign syndication).
         Optimized with precomputed sets and length filtering for lightning-fast scaling up to 1,000+ reviews.
@@ -29,13 +29,13 @@ class PatternDetector:
         for i in range(n):
             set_a = word_sets[i]
             len_a = len(set_a)
-            if len_a == 0:
+            if len_a < 6:
                 continue
 
             for j in range(i + 1, n):
                 set_b = word_sets[j]
                 len_b = len(set_b)
-                if len_b == 0:
+                if len_b < 6:
                     continue
 
                 # Jaccard mathematical upper bound filter

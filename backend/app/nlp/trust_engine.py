@@ -53,15 +53,17 @@ class TriAxisTrustEngine:
         weighted_ratio = ((genuine_count * 1.0) + (suspicious_count * 0.35)) / total
         raw_score = weighted_ratio * 100.0
 
-        # Penalties for syndicate manipulation
-        dup_penalty = min(duplicates_count * 4.0, 12.0)
-        mismatch_penalty = min(mismatch_count * 3.0, 8.0)
+        # Penalties for syndicate manipulation - proportional to batch ratio
+        dup_rate = duplicates_count / max(total, 1)
+        mismatch_rate = mismatch_count / max(total, 1)
+        dup_penalty = min(dup_rate * 30.0, 15.0)
+        mismatch_penalty = min(mismatch_rate * 25.0, 10.0)
 
         trust_score = max(0.0, min(100.0, round(raw_score - dup_penalty - mismatch_penalty, 1)))
 
-        # Clean profile protection: if 100% genuine and 0 duplicates
-        if genuine_count == total and duplicates_count == 0:
-            trust_score = 96.0
+        # Clean profile protection: if high genuine ratio
+        if weighted_ratio >= 0.90 and dup_rate < 0.05:
+            trust_score = max(trust_score, round(weighted_ratio * 97.0, 1))
 
         if trust_score >= 80.0:
             category = "High Review Trust"
@@ -161,7 +163,9 @@ class TriAxisTrustEngine:
 
     def verify_product_authenticity(
         self,
-        verification_input: ProductVerificationInput
+        verification_input: ProductVerificationInput,
+        trust_score: Optional[float] = None,
+        product_name: str = ""
     ) -> Tuple[str, str]:
         if verification_input.inspection_result == "verified_genuine":
             return "Verified Genuine", "Listing and packaging credentials verified against official distributor records."
@@ -169,6 +173,15 @@ class TriAxisTrustEngine:
             return "Verified Counterfeit", "Manufacturer registry rejects serial identifier; counterfeit item confirmed."
         elif verification_input.inspection_result == "suspected_counterfeit":
             return "Suspected Counterfeit", "Customer reports and listing anomalies indicate counterfeit risk."
+
+        p_low = product_name.lower()
+        if any(k in p_low for k in ["clone", "replica", "fake", "copy", "first copy"]):
+            return "Suspected Counterfeit", "Listing title or seller credentials indicate non-original clone merchandise."
+        if trust_score is not None:
+            if trust_score >= 80.0:
+                return "Verified Authentic Listing", "Authentic verified customer feedback with high sentiment consistency."
+            elif trust_score <= 42.0:
+                return "Suspected Counterfeit", "High astroturfing and deceptive bot patterns detected across customer reviews."
         return "Not Verified", "Standard e-commerce listing without independent laboratory verification."
 
 trust_engine = TriAxisTrustEngine()

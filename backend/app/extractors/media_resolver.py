@@ -76,7 +76,15 @@ def parse_clean_title_from_url(url: str, fallback_title: str = None) -> Tuple[st
             title, brand, _ = ASIN_PRODUCT_CATALOG[asin]
             return title, brand
 
-    # 2. Extract candidate slug from URL path
+    # 2. Check if user passed a raw product query or name (e.g. "iphone 17", "boat airdopes")
+    if not url.startswith("http://") and not url.startswith("https://"):
+        raw_words = [w.capitalize() for w in url.replace("-", " ").replace("_", " ").split() if w]
+        raw_title = " ".join(raw_words)
+        if "iphone" in raw_title.lower() and "apple" not in raw_title.lower():
+            raw_title = f"Apple {raw_title}"
+        return raw_title, "Apple" if "iphone" in raw_title.lower() else "Verified Brand"
+
+    # 3. Extract candidate slug from URL path
     candidate_slugs = []
 
     # Amazon pattern: /product-title-slug/dp/ASIN
@@ -113,10 +121,21 @@ def parse_clean_title_from_url(url: str, fallback_title: str = None) -> Tuple[st
     # Identify brand from title or URL
     found_brand = "Verified Brand"
     title_and_url = (product_title + " " + url).lower()
-    for brand in KNOWN_BRANDS:
-        if brand.lower() in title_and_url:
-            found_brand = brand
-            break
+    
+    # Specific Apple / iPhone mapping
+    if any(k in title_and_url for k in ["iphone", "ipad", "macbook", "airpod", "apple watch"]):
+        found_brand = "Apple"
+    elif any(k in title_and_url for k in ["galaxy", "samsung"]):
+        found_brand = "Samsung"
+    elif any(k in title_and_url for k in ["pixel"]):
+        found_brand = "Google"
+    elif any(k in title_and_url for k in ["g-shock", "casio"]):
+        found_brand = "CASIO"
+    else:
+        for brand in KNOWN_BRANDS:
+            if brand.lower() in title_and_url:
+                found_brand = brand
+                break
 
     # If title is still generic, infer from path or category keywords in the URL
     if not product_title or product_title in ["Flipkart Product", "Amazon Product", "Product Under Analysis", "E-Commerce Product"]:

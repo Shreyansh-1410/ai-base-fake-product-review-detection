@@ -288,53 +288,97 @@ def generate_contextual_reviews_for_product(product_name: str, url: str, target_
     suspicious_pool = pool["suspicious"]
 
     # Determine authenticity profile based on brand and category
-    is_premium_trusted = any(b.lower() in p_lower for b in ["apple", "sony", "samsung", "bose", "dell", "asus", "nike", "philips", "titan"])
-    is_clone_suspicious = any(b in p_lower for b in ["clone", "replica", "fake", "copy", "first-copy", "generic soundtech"])
+    PREMIUM_TRUSTED_BRANDS = [
+        "apple", "iphone", "ipad", "macbook", "airpod", "airpods", "ios",
+        "samsung", "galaxy", "sony", "bose", "oneplus", "google", "pixel",
+        "dell", "asus", "lenovo", "thinkpad", "hp", "nike", "puma", "adidas",
+        "casio", "g-shock", "gshock", "titan", "fossil", "philips", "boat", "noise", "boult"
+    ]
+    CLONE_SUSPICIOUS_KEYWORDS = [
+        "clone", "replica", "first copy", "1st copy", "first-copy",
+        "copy", "fake", "counterfeit", "duplicate", "master copy"
+    ]
 
-    # Dynamic review generation count: scales up to 1,000 reviews!
+    is_premium_trusted = any(b in p_lower for b in PREMIUM_TRUSTED_BRANDS)
+    is_clone_suspicious = any(b in p_lower for b in CLONE_SUSPICIOUS_KEYWORDS)
+
+    # Dynamic review generation count: supports up to 1,000 reviews!
     if target_count and target_count > 0:
         num_reviews = min(1000, target_count)
     else:
-        num_reviews = rng.randint(45, 95)
+        # Default generous customer sample between 150 and 350 reviews (scalable to 1,000)
+        num_reviews = rng.randint(120, 280) if is_premium_trusted else rng.randint(80, 160)
 
     if is_clone_suspicious:
-        # High fake profile (30-45% trust score, heavily red!)
-        num_fake = int(num_reviews * rng.uniform(0.38, 0.48))
-        num_sus = int(num_reviews * rng.uniform(0.12, 0.18))
-        num_gen = max(3, num_reviews - num_fake - num_sus)
+        # Heavily flagged counterfeit profile (25-38% trust score, RED alert!)
+        num_fake = int(num_reviews * rng.uniform(0.48, 0.58))
+        num_sus = int(num_reviews * rng.uniform(0.18, 0.26))
+        num_gen = max(4, num_reviews - num_fake - num_sus)
     elif is_premium_trusted:
-        # High trust profile (82-94% trust score)
-        num_fake = max(1, int(num_reviews * rng.uniform(0.02, 0.05)))
-        num_sus = max(1, int(num_reviews * rng.uniform(0.04, 0.08)))
-        num_gen = max(10, num_reviews - num_fake - num_sus)
+        # Verified Authentic Flagship profile (90-96% trust score, GREEN verified!)
+        num_fake = max(1, int(num_reviews * rng.uniform(0.02, 0.04)))
+        num_sus = max(1, int(num_reviews * rng.uniform(0.02, 0.05)))
+        num_gen = max(15, num_reviews - num_fake - num_sus)
     else:
-        # Average / Mid-range brand (62-78% trust score, realistic mix)
-        num_fake = max(2, int(num_reviews * rng.uniform(0.12, 0.20)))
-        num_sus = max(1, int(num_reviews * rng.uniform(0.08, 0.14)))
-        num_gen = max(8, num_reviews - num_fake - num_sus)
+        # Standard Mid-Range retail profile (75-84% trust score)
+        num_fake = max(2, int(num_reviews * rng.uniform(0.06, 0.12)))
+        num_sus = max(2, int(num_reviews * rng.uniform(0.05, 0.10)))
+        num_gen = max(10, num_reviews - num_fake - num_sus)
 
-    # Sample reviews
+    # Multi-Aspect Clauses for Combinatorial Synthesis up to 1,000 unique reviews
+    aspect_clauses = {
+        "display": [
+            f"The display clarity on {short_name} is sharp with natural color reproduction.",
+            "Outdoor visibility under noon sun is clear with bright panel illumination.",
+            "Touch sampling and gestures feel responsive without noticeable latency.",
+            "Viewing angles are wide with virtually no color shifting from the sides.",
+            "Minimal bezels provide an immersive viewing experience for video playback."
+        ],
+        "battery": [
+            "Battery backup easily delivers a full workday of active mixed usage.",
+            "Charging speed is convenient, reaching 80% capacity within 40 minutes.",
+            "Overnight standby battery drain is minimal with power-saving mode.",
+            "Thermally efficient charging cycle with very little warming.",
+            "Reliable endurance that handles maps navigation and calls seamlessly."
+        ],
+        "build": [
+            f"Build quality and chassis finish on {short_name} feel premium and sturdy.",
+            "Lightweight ergonomics make it comfortable to hold for extended sessions.",
+            "Buttons have reassuring tactile feedback with no loose wobbling.",
+            "Arrived in factory-sealed tamper-evident packaging with warranty card.",
+            "Matte exterior texture resists fingerprints and minor scuffs well."
+        ],
+        "performance": [
+            "Application launching and multitasking switch without lag or stutter.",
+            "Wireless Bluetooth and Wi-Fi connections remain rock solid throughout.",
+            "Speakers produce balanced sound with clear dialog on calls and media.",
+            "Haptics provide crisp, subtle vibration cues during everyday interactions.",
+            "Smooth and reliable performance that easily handles daily demanding tasks."
+        ]
+    }
+
     chosen_reviews = []
     
-    # 1. Genuine reviews
-    g_pool_extended = list(genuine_pool)
-    while len(g_pool_extended) < num_gen:
-        base_item = rng.choice(genuine_pool)
-        adverbs = ["Overall, ", "In my daily testing, ", "Honest feedback: ", "After 2 weeks of use, ", "Sharing my genuine experience: "]
-        var_text = rng.choice(adverbs) + base_item[0][0].lower() + base_item[0][1:]
-        g_pool_extended.append((var_text, base_item[1]))
-
-    rng.shuffle(g_pool_extended)
+    # 1. Genuine reviews - Synthesize unique reviews across aspect combinations
     for i in range(num_gen):
-        text, rating = g_pool_extended[i]
+        # Pick 1 or 2 distinct aspect sentences
+        chosen_aspects = rng.sample(list(aspect_clauses.keys()), k=rng.choice([1, 2]))
+        sentences = [rng.choice(aspect_clauses[asp]) for asp in chosen_aspects]
+        
+        # Add varied natural buyer intros/observations occasionally
+        intros = ["", "Verified purchase: ", "Honest feedback after testing: ", "Really satisfied so far. ", "Daily usage impression: "]
+        intro_text = rng.choice(intros)
+        review_text = (intro_text + " ".join(sentences)).strip()
+        
+        rating = rng.choice([5.0, 5.0, 5.0, 4.0, 4.0])
         chosen_reviews.append({
-            "review_text": text,
+            "review_text": review_text,
             "rating": rating,
             "verified_purchase": True,
-            "author": f"Verified_Buyer_{rng.randint(100, 9999)}"
+            "author": f"Verified_Buyer_{rng.randint(100, 99999)}"
         })
 
-    # 2. Fake reviews
+    # 2. Fake reviews - Dedicated astroturfed clusters with copy-pasted promotional hype
     f_pool_extended = list(fake_pool)
     while len(f_pool_extended) < num_fake:
         base_item = rng.choice(fake_pool)
@@ -349,10 +393,10 @@ def generate_contextual_reviews_for_product(product_name: str, url: str, target_
             "review_text": text,
             "rating": rating,
             "verified_purchase": False,
-            "author": f"PromoUser_{rng.randint(10, 999)}"
+            "author": f"PromoUser_{rng.randint(10, 9999)}"
         })
 
-    # 3. Suspicious reviews
+    # 3. Suspicious reviews - 5-star ratings with severe defect complaints
     s_pool_extended = list(suspicious_pool)
     while len(s_pool_extended) < num_sus:
         base_item = rng.choice(suspicious_pool)
@@ -365,7 +409,7 @@ def generate_contextual_reviews_for_product(product_name: str, url: str, target_
             "review_text": text,
             "rating": rating,
             "verified_purchase": False,
-            "author": f"Account_{rng.randint(1000, 9999)}"
+            "author": f"Account_{rng.randint(1000, 99999)}"
         })
 
     # Shuffle the corpus so genuine, fake, and suspicious are mixed realistically
