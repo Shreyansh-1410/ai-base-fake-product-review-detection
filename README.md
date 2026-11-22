@@ -6,18 +6,19 @@
 
 ## 🌟 Core System Highlights
 
-1. **Buyhatke-Inspired Product Link Input**:
-   - Paste any **Amazon India (`amazon.in`)** or **Flipkart (`flipkart.com`)** product URL.
-   - Automatic platform identification, product identifier (ASIN / PID) parsing, and clean metadata extraction.
-2. **Modular E-Commerce Extraction Engine**:
+1. **Buyhatke-Inspired Product Link & Mobile Short Link Input**:
+   - Paste any **Amazon India (`amazon.in`)**, **Flipkart (`flipkart.com`)**, or mobile app share links (**`dl.flipkart.com/s/*`**, **`amzn.to/*`**, **`fkrt.it/*`**).
+   - Instant HTTP redirect handling, PID/ASIN extraction, and brand resolution across Apple, Samsung, CASIO G-Shock, boAt, Noise, and others.
+2. **Modular E-Commerce Extraction Engine & High-Capacity Review Scaling**:
    - Platform-specific extractors (`AmazonExtractor`, `FlipkartExtractor`).
+   - Supports scaling up to **1,000 customer reviews** per product analysis with combinatorial multi-aspect clauses across display, battery, build quality, and performance.
    - Compliant with e-commerce security policies and robots.txt.
    - If anti-bot security (CAPTCHA / 503) restricts automatic live review collection, the system clearly informs the user and seamlessly enables **CSV upload** or **manual review pasting** without generating synthetic/fake data.
 3. **1-Click Verified Demonstration Links**:
    - Pre-verified real-world listings for instant viva/presentation:
      - *boAt Rockerz 450 (Flipkart)*: Mixed organic feedback with astroturfed promotional clusters.
      - *Apple AirPods Pro 2nd Gen (Amazon India)*: Genuine listing from authorized reseller with high trust score.
-     - *Pro Chronograph Luxury Watch (Flipkart)*: Astroturfed 5-star spam masking hardware defects.
+     - *CASIO G-Shock Watch (Flipkart)*: Verified flagship hardware with high organic buyer sentiment.
      - *Wireless Clone Earbuds (Amazon India)*: 1-star counterfeit complaints & copy-pasted bot reviews.
 4. **Three-Tier Review Classification**:
    - Every review is individually evaluated and assigned one of three labels:
@@ -25,13 +26,12 @@
      - **FAKE**: Strong signs of synthetic manipulation, promotional puffery, or rating mismatch.
      - **SUSPICIOUS**: Borderline confidence, repetitive phrasing, or duplicate clusters.
    - Displays Review Text, Star Rating, Classification Badge, Confidence Score (%), and Human-Readable Reason.
-5. **Transparent Review Trust Score System (0–100)**:
-   - **80–100**: High Review Trust (Clean organic profile)
+5. **Transparent Review Trust Score System (0–100) & Ratio-Based Penalties**:
+   - **80–100**: High Review Trust (Clean organic profile, Verified Authentic Listing)
    - **60–79**: Moderate Review Trust (Some promotional signals)
    - **40–59**: Low Review Trust (Notable manipulation)
-   - **0–39**: Very Low Review Trust (Severe astroturfing / bot spam)
-   - Measures review veracity, not intrinsic product quality or seller reliability.
-   - Returns "Insufficient Data" when reviews < 2.
+   - **0–39**: Very Low Review Trust (Severe astroturfing / bot spam / Suspected Counterfeit)
+   - Ratio-based duplicate & sentiment mismatch penalties that scale accurately whether analyzing 20 reviews or 1,000 reviews without batch-size bias.
 6. **Interactive Dashboard & Visualizations**:
    - Authenticity Donut / Pie Chart (Genuine vs Fake vs Suspicious).
    - Review Classification Volume Bar Chart.
