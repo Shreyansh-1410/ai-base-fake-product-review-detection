@@ -1,5 +1,11 @@
 # ReviewGuard – AI-Based Fake Product Review Detector
 
+![ReviewGuard CI](https://github.com/Shreyansh-1410/ai-base-fake-product-review-detection/actions/workflows/ci.yml/badge.svg)
+![Python 3.9+](https://img.shields.io/badge/Python-3.9%20%7C%203.12%20%7C%203.13-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)
+![React](https://img.shields.io/badge/React-18+-61DAFB.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+
 **ReviewGuard** is a production-grade, AI-powered web application inspired by platforms like Buyhatke for seamless product-link input experience. Instead of price tracking, ReviewGuard analyzes customer reviews to detect fake, manipulated, astroturfed, and suspicious feedback using Natural Language Processing (NLP) and Machine Learning.
 
 ---
