@@ -231,7 +231,7 @@ export default function HomePage({ onStartAnalysis, onNavigate, onOpenDemo }) {
                   type="url"
                   value={productLink}
                   onChange={(e) => { setProductLink(e.target.value); setError(null); }}
-                  placeholder="Paste Amazon or Flipkart link (e.g. amazon.in/dp/... or flipkart.com/...)"
+                  placeholder="Paste Amazon, Flipkart link or mobile share link (e.g. https://dl.flipkart.com/s/...)"
                   className="w-full py-2.5 px-2 bg-transparent text-slate-900 placeholder-slate-400 text-sm sm:text-base focus:outline-none font-medium"
                   required
                 />
